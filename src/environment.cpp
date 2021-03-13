@@ -8,6 +8,11 @@
 // using templates for processPointClouds so also include .cpp to help linker
 #include "processPointClouds.cpp"
 
+#include <chrono>
+#include <thread>
+
+using namespace std::chrono_literals;
+
 std::vector<Car> initHighway(bool renderScene, pcl::visualization::PCLVisualizer::Ptr &viewer)
 {
 
@@ -74,16 +79,15 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr &viewer)
     }
 }
 
-void cityBlock(pcl::visualization::PCLVisualizer::Ptr &viewer)
+void process_pcd_data(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPointClouds<pcl::PointXYZI> *pointProcessorI, std::string path_to_pcd_file)
 {
     // ----------------------------------------------------
     // -----Open 3D viewer and display City Block     -----
     // ----------------------------------------------------
 
-    ProcessPointClouds<pcl::PointXYZI> *pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
     pcl::PointCloud<pcl::PointXYZI>::Ptr filterCloud;
 
-    pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessorI->loadPcd("../src/sensors/data/pcd/data_1/0000000000.pcd");
+    pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessorI->loadPcd(path_to_pcd_file);
     // renderPointCloud(viewer, inputCloud, "inputCloud");
     filterCloud = pointProcessorI->FilterCloud(inputCloud, 0.25, Eigen::Vector4f(-10, -5, -2, 1), Eigen::Vector4f(25, 7, 2, 1));
     renderPointCloud(viewer, filterCloud, "filterCloud");
@@ -144,10 +148,26 @@ int main(int argc, char **argv)
     pcl::visualization::PCLVisualizer::Ptr viewer(new pcl::visualization::PCLVisualizer("3D Viewer"));
     CameraAngle setAngle = XY;
     initCamera(setAngle, viewer);
-    cityBlock(viewer);
+
+    ProcessPointClouds<pcl::PointXYZI> *pointProcessorI = new ProcessPointClouds<pcl::PointXYZI>();
+
+    std::string path_to_pcd_dir = "../src/sensors/data/pcd/data_1";
+    std::vector<boost::filesystem::path> stream = pointProcessorI->streamPcd(path_to_pcd_dir);
+    auto stream_iterator = stream.begin();
 
     while (!viewer->wasStopped())
     {
+        viewer->removeAllPointClouds();
+        viewer->removeAllShapes();
+
+        std::string path_to_file = stream_iterator->string();
+        process_pcd_data(viewer, pointProcessorI, path_to_file);
+        stream_iterator++;
+        if (stream_iterator == stream.end())
+        {
+            stream_iterator = stream.begin();
+        }
+        std::this_thread::sleep_for(10ms);
         viewer->spinOnce();
     }
 }
