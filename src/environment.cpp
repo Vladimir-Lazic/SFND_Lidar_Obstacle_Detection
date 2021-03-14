@@ -89,7 +89,7 @@ void process_pcd_data(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPoi
 
     pcl::PointCloud<pcl::PointXYZI>::Ptr inputCloud = pointProcessorI->loadPcd(path_to_pcd_file);
     // renderPointCloud(viewer, inputCloud, "inputCloud");
-    filterCloud = pointProcessorI->FilterCloud(inputCloud, 0.25, Eigen::Vector4f(-10, -5, -2, 1), Eigen::Vector4f(25, 7, 2, 1));
+    filterCloud = pointProcessorI->FilterCloud(inputCloud,0.5f, Eigen::Vector4f(-10, -6, -3, 1), Eigen::Vector4f(20, 6, 3, 1));
     renderPointCloud(viewer, filterCloud, "filterCloud");
 
     std::pair<pcl::PointCloud<pcl::PointXYZI>::Ptr, pcl::PointCloud<pcl::PointXYZI>::Ptr> segmentCloud = pointProcessorI->SegmentPlane(filterCloud, 100, 0.2);
