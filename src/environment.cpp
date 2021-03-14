@@ -135,7 +135,7 @@ void process_pcd_data(pcl::visualization::PCLVisualizer::Ptr &viewer, ProcessPoi
         points.push_back({point.x, point.y, point.z});
     }
 
-    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessorI->EuclidianClustering(segmentCloud.first, points, 0.7, 10, 1000);
+    std::vector<pcl::PointCloud<pcl::PointXYZI>::Ptr> cloudClusters = pointProcessorI->EuclidianClustering(segmentCloud.first, points, 0.9, 100, 1000);
 
     int clusterId = 0;
     std::vector<Color> colors = {Color(1, 0, 0), Color(1, 1, 0), Color(0, 0, 1), Color(1, 0, 1), Color(0, 1, 1)};
